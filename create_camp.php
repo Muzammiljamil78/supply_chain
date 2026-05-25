@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_camp'])) {
     $slug           = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $camp_name)) . '-' . substr(md5(uniqid()), 0, 4);
 
 
+
     $max_payout = 0;
     if ($event_id > 0) {
         $ps = $conn->prepare("SELECT payout_amount FROM offer_events WHERE id=? AND offer_id=?");
@@ -74,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_camp'])) {
     }
     header("Location: create_camp"); exit;
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_camp'])) {
     $camp_id        = (int)$_POST['camp_id'];
@@ -113,108 +115,59 @@ if (isset($_GET['delete_camp'])) {
 $base_url = 'https://partner.osamcamp.in';
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Camp Builder</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#fafbfc;
+  --bg:#f9fafb;
   --surface:#ffffff;
-  --surface2:#f6f8fa;
-  --border:#eaeef2;
-  --border2:#d0d7de;
-  --text:#1f2328;
-  --muted:#656d76;
-  --accent:#0969da;
-  --accent-light:#ddf4ff;
-  --green:#1a7f37;
-  --green-light:#dafbe1;
-  --gold:#9a6700;
-  --gold-light:#fff8c5;
-  --red:#cf222e;
-  --red-light:#ffebe9;
-  --radius:10px;
-  --shadow-sm:0 1px 2px rgba(31,35,40,.04);
-  --shadow:0 2px 8px rgba(31,35,40,.06);
-  --shadow-lg:0 8px 24px rgba(31,35,40,.1);
+  --surface2:#f3f4f6;
+  --border:#e5e7eb;
+  --border2:#d1d5db;
+  --text:#111827;
+  --muted:#6b7280;
+  --accent:#4f46e5;
+  --accent-hover:#4338ca;
+  --accent-light:#eef2ff;
+  --green:#059669;
+  --green-light:#d1fae5;
+  --gold:#d97706;
+  --gold-light:#fef3c7;
+  --red:#dc2626;
+  --red-light:#fee2e2;
+  --radius:16px;
+  --radius-sm:12px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.04);
+  --shadow:0 4px 12px rgba(0,0,0,.06);
+  --shadow-lg:0 12px 32px rgba(0,0,0,.1);
   --transition:0.2s cubic-bezier(0.4,0,0.2,1);
 }
 html{scroll-behavior:smooth}
-body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5}
-@media(min-width:1024px){.page-topbar,.page-tabs{margin-left:288px!important}.page-main{margin-left:288px}}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5}
+@media(min-width:1024px){.page-topbar{margin-left:288px!important}.page-main{margin-left:288px}}
+
 
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
 
-
 /* ── TOPBAR ── */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;transition:box-shadow var(--transition)}
-.topbar:hover{box-shadow:var(--shadow-sm)}
-.topbar-icon{width:36px;height:36px;border-radius:var(--radius);background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--accent);flex-shrink:0}
-.topbar-title{font-size:15px;font-weight:600;color:var(--text)}
-.topbar-sub{font-size:12px;color:var(--muted);font-weight:400}
-.topbar-count{margin-left:auto;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:500;padding:4px 12px;border-radius:99px}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:18px;font-weight:600;color:var(--text);letter-spacing:-0.02em}
+.topbar-sub{font-size:13px;color:var(--muted);font-weight:400}
+.topbar-count{margin-left:auto;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:600;padding:6px 14px;border-radius:99px}
 
-/* ── TABS ── */
-.tabs{display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:66px;z-index:99}
-.tab{flex:1;padding:14px 12px;font-size:13px;font-weight:500;text-align:center;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all var(--transition)}
-.tab:hover{color:var(--text);background:var(--surface2)}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
-.tab i{display:block;font-size:15px;margin-bottom:4px}
-
-/* ── WRAP ── */
-.wrap{max-width:640px;margin:0 auto;padding:24px 16px}
-
-/* ── SECTION ── */
-.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm);transition:all var(--transition);animation:fadeIn 0.3s ease}
-.section:hover{box-shadow:var(--shadow)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.sec-num{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition)}
-.sec-num.done{background:var(--green-light);border-color:var(--green);color:var(--green)}
-.sec-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-0.01em}
-.sec-sub{font-size:11px;color:var(--accent);margin-left:auto;font-weight:500}
-
-
-/* ── OFFER CARDS ── */
-.offers-scroll{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;padding-right:4px}
-.offer-card{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all var(--transition);background:var(--surface)}
-.offer-card:hover{border-color:var(--accent);background:var(--accent-light);transform:translateY(-1px);box-shadow:var(--shadow)}
-.offer-card.selected{border-color:var(--accent);background:var(--accent-light);box-shadow:0 0 0 3px rgba(9,105,218,.1)}
-.offer-card img{width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0}
-.offer-card .offer-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
-.offer-card .offer-cat{font-size:11px;color:var(--muted);margin-top:2px}
-.offer-payout{margin-left:auto;background:var(--green-light);color:var(--green);font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;flex-shrink:0}
-
-/* ── EVENT PILLS ── */
-.event-pills{display:flex;flex-wrap:wrap;gap:8px}
-.epill{border:1px solid var(--border);border-radius:99px;padding:8px 16px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all var(--transition);display:flex;align-items:center;gap:8px;background:var(--surface)}
-.epill:hover{border-color:var(--accent);color:var(--text);background:var(--accent-light)}
-.epill.selected{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
-.epill .epay{color:var(--green);font-weight:600}
-
-/* ── PAYOUT ── */
-.payout-info{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-.payout-info .pi-label{font-size:11px;color:var(--muted);margin-bottom:2px;font-weight:400}
-.payout-info .pi-val{font-size:16px;font-weight:700}
-.pi-val.green{color:var(--green)}
-.pi-val.gold{color:var(--gold)}
-.payout-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.bar-wrap{background:var(--border);border-radius:99px;height:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:99px;background:var(--accent);transition:width 0.3s ease,background 0.3s ease}
-.bar-label{font-size:11px;color:var(--muted);text-align:right;margin-top:6px}
-
-
-/* Sidebar */
+/* ── Sidebar ── */
 .sidebar {
     position: fixed;
     left: 0;
@@ -227,7 +180,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
     transition: transform 0.3s ease;
 }
 @media (max-width: 1024px) {
-    .page-topbar, .page-tabs {
+    .page-topbar {
         margin-left: 0 !important;
         width: 100% !important;
         z-index: 10 !important;
@@ -243,8 +196,8 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
     .sidebar-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(31,35,40,0.4);
-        backdrop-filter: blur(2px);
+        background: rgba(17,24,39,0.4);
+        backdrop-filter: blur(3px);
         z-index: 9998;
         display: none;
     }
@@ -253,152 +206,191 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
     }
 }
 
+
+/* ── WRAP ── */
+.wrap{max-width:780px;margin:0 auto;padding:32px 20px}
+
+/* ── SECTION DIVIDER ── */
+.section-divider{height:1px;background:var(--border);margin:40px 0;position:relative}
+.section-divider::after{content:attr(data-label);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--bg);padding:0 16px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em}
+
+/* ── SECTION CARD ── */
+.section{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow-sm);transition:all var(--transition);animation:fadeIn 0.3s ease}
+.section:hover{box-shadow:var(--shadow)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.sec-num{width:32px;height:32px;border-radius:50%;background:var(--accent-light);border:2px solid var(--accent);color:var(--accent);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition)}
+.sec-num.done{background:var(--green-light);border-color:var(--green);color:var(--green)}
+.sec-title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-0.01em}
+.sec-sub{font-size:12px;color:var(--accent);margin-left:auto;font-weight:500}
+
+
+/* ── OFFER CARDS ── */
+.offers-scroll{display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;padding-right:4px}
+.offer-card{display:flex;align-items:center;gap:16px;padding:14px 18px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all var(--transition);background:var(--surface)}
+.offer-card:hover{border-color:var(--accent);background:var(--accent-light);transform:translateY(-2px);box-shadow:var(--shadow)}
+.offer-card.selected{border-color:var(--accent);background:var(--accent-light);box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.offer-card img{width:44px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0}
+.offer-card .offer-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+.offer-card .offer-cat{font-size:12px;color:var(--muted);margin-top:3px}
+.offer-payout{margin-left:auto;background:var(--green-light);color:var(--green);font-size:13px;font-weight:700;padding:6px 12px;border-radius:var(--radius-sm);flex-shrink:0}
+
+/* ── EVENT CHIPS (rectangular) ── */
+.event-pills{display:flex;flex-wrap:wrap;gap:10px}
+.epill{border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all var(--transition);display:flex;align-items:center;gap:8px;background:var(--surface)}
+.epill:hover{border-color:var(--accent);color:var(--text);background:var(--accent-light)}
+.epill.selected{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
+.epill .epay{color:var(--green);font-weight:700}
+
+
+/* ── PAYOUT ── */
+.payout-info{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.payout-info .pi-label{font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:500;text-transform:uppercase;letter-spacing:0.03em}
+.payout-info .pi-val{font-size:18px;font-weight:700}
+.pi-val.green{color:var(--green)}
+.pi-val.gold{color:var(--gold)}
+.payout-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.bar-wrap{background:var(--border);border-radius:99px;height:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:var(--accent);transition:width 0.3s ease,background 0.3s ease}
+.bar-label{font-size:12px;color:var(--muted);text-align:right;margin-top:8px}
+
 /* ── INPUTS ── */
-.inp-group{margin-bottom:14px}
-.inp-group label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px}
-.inp{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;font-family:'Inter',sans-serif;color:var(--text);outline:none;transition:all var(--transition)}
-.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(9,105,218,.1)}
+.inp-group{margin-bottom:16px}
+.inp-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.03em}
+.inp{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-size:15px;font-family:'Outfit',sans-serif;color:var(--text);outline:none;transition:all var(--transition)}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(79,70,229,.08)}
 .inp::placeholder{color:var(--border2)}
 input[type=number].inp::-webkit-inner-spin-button{opacity:.5}
 
 
 /* ── STEPS ── */
-.step-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;animation:fadeIn 0.2s ease}
-.step-badge{width:24px;height:24px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.step-inp{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Inter',sans-serif;color:var(--text);outline:none;transition:all var(--transition)}
-.step-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(9,105,218,.1)}
+.step-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;animation:fadeIn 0.2s ease}
+.step-badge{width:28px;height:28px;border-radius:50%;background:var(--accent-light);border:1px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-inp{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;font-family:'Outfit',sans-serif;color:var(--text);outline:none;transition:all var(--transition)}
+.step-inp:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(79,70,229,.08)}
 .step-inp::placeholder{color:var(--border2)}
-.step-del{width:28px;height:28px;border-radius:6px;background:transparent;border:1px solid transparent;color:var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--transition)}
-.step-del:hover{background:var(--red-light);border-color:rgba(207,34,46,.2);color:var(--red)}
-.add-step-btn{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--muted);background:none;border:1px dashed var(--border2);border-radius:8px;padding:10px 14px;cursor:pointer;width:100%;justify-content:center;transition:all var(--transition);margin-top:8px}
+.step-del{width:30px;height:30px;border-radius:8px;background:transparent;border:1px solid transparent;color:var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--transition)}
+.step-del:hover{background:var(--red-light);border-color:rgba(220,38,38,.2);color:var(--red)}
+.add-step-btn{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--muted);background:none;border:2px dashed var(--border2);border-radius:var(--radius-sm);padding:12px 16px;cursor:pointer;width:100%;justify-content:center;transition:all var(--transition);margin-top:10px}
 .add-step-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
 
-/* ── TOGGLE ── */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;transition:all var(--transition)}
+
+/* ── TOGGLE (wide rectangular with rounded ends) ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px;transition:all var(--transition)}
 .toggle-row:hover{border-color:var(--border2)}
-.toggle-info .tl{font-size:13px;font-weight:500;color:var(--text)}
-.toggle-info .ts{font-size:11px;color:var(--muted);margin-top:2px}
-.toggle-sw{position:relative;width:42px;height:22px;flex-shrink:0}
+.toggle-info .tl{font-size:14px;font-weight:500;color:var(--text)}
+.toggle-info .ts{font-size:12px;color:var(--muted);margin-top:3px}
+.toggle-sw{position:relative;width:52px;height:28px;flex-shrink:0}
 .toggle-sw input{opacity:0;width:0;height:0;position:absolute}
-.toggle-track{position:absolute;inset:0;background:var(--border2);border-radius:99px;cursor:pointer;transition:0.3s}
-.toggle-track::before{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:0.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle-track{position:absolute;inset:0;background:var(--border2);border-radius:14px;cursor:pointer;transition:0.3s}
+.toggle-track::before{content:'';position:absolute;width:22px;height:22px;background:#fff;border-radius:11px;top:3px;left:3px;transition:0.3s;box-shadow:0 2px 4px rgba(0,0,0,.15)}
 input:checked~.toggle-track{background:var(--accent)}
-input:checked~.toggle-track::before{transform:translateX(20px)}
+input:checked~.toggle-track::before{transform:translateX(24px)}
 
 /* ── LINK BOX ── */
-.link-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--muted);word-break:break-all;margin-bottom:14px;line-height:1.6}
+.link-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--muted);word-break:break-all;margin-bottom:16px;line-height:1.7}
 
-
-/* ── SUBMIT BTN ── */
-.submit-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:14px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all var(--transition);letter-spacing:-0.01em}
-.submit-btn:hover{background:#0860ca;box-shadow:var(--shadow)}
+/* ── SUBMIT BTN (solid, no gradient) ── */
+.submit-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:16px;font-size:15px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all var(--transition);letter-spacing:-0.01em}
+.submit-btn:hover{background:var(--accent-hover)}
 .submit-btn:active{transform:scale(.98)}
 
-/* ── CAMP CARDS ── */
-.camp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;box-shadow:var(--shadow-sm);transition:all var(--transition);animation:fadeIn 0.3s ease}
+
+/* ── CAMP CARDS (horizontal layout) ── */
+.camp-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px;box-shadow:var(--shadow-sm);transition:all var(--transition);animation:fadeIn 0.3s ease;display:flex;flex-wrap:wrap;align-items:flex-start;gap:20px}
 .camp-card:hover{box-shadow:var(--shadow);border-color:var(--border2)}
-.camp-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.camp-img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0}
-.camp-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:2px}
-.camp-offer{font-size:11px;color:var(--muted)}
-.camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.chip{font-size:11px;font-weight:500;padding:3px 10px;border-radius:99px}
+.camp-img-wrap{flex-shrink:0}
+.camp-img{width:56px;height:56px;border-radius:12px;object-fit:cover}
+.camp-info{flex:1;min-width:200px}
+.camp-name{font-size:16px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:4px}
+.camp-offer{font-size:12px;color:var(--muted)}
+.camp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{font-size:11px;font-weight:600;padding:4px 12px;border-radius:6px}
 .chip-green{background:var(--green-light);color:var(--green)}
 .chip-gold{background:var(--gold-light);color:var(--gold)}
 .chip-blue{background:var(--accent-light);color:var(--accent)}
 .chip-red{background:var(--red-light);color:var(--red)}
 .chip-purple{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
-.camp-link-row{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.camp-right{display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0}
+@media(max-width:640px){
+    .camp-card{flex-direction:column}
+    .camp-right{align-items:flex-start;width:100%}
+}
+.camp-link-row{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;gap:8px;width:100%}
 .camp-link-row span{font-size:11px;color:var(--muted);font-family:'SF Mono','Fira Code',monospace;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .camp-link-row button{flex-shrink:0;background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:2px 6px;transition:color var(--transition)}
 .camp-link-row button:hover{color:var(--text)}
-.steps-preview{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.step-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px}
-.camp-actions{display:flex;gap:8px;flex-wrap:wrap}
-.act-btn{font-size:12px;font-weight:500;padding:8px 12px;border-radius:8px;border:1px solid;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all var(--transition);font-family:'Inter',sans-serif;text-decoration:none}
-.act-copy{background:var(--accent-light);color:var(--accent);border-color:transparent}
-.act-copy:hover{background:#c8e1ff}
-.act-edit{background:var(--gold-light);color:var(--gold);border-color:transparent}
-.act-edit:hover{background:#fef3b5}
-.act-pause{background:var(--surface2);color:var(--muted);border-color:var(--border)}
+.steps-preview{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.step-tag{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
+.camp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.act-btn{font-size:12px;font-weight:600;padding:8px 14px;border-radius:var(--radius-sm);border:none;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all var(--transition);font-family:'Outfit',sans-serif;text-decoration:none}
+.act-copy{background:var(--accent-light);color:var(--accent)}
+.act-copy:hover{background:#ddd6fe}
+.act-edit{background:var(--gold-light);color:var(--gold)}
+.act-edit:hover{background:#fde68a}
+.act-pause{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
 .act-pause:hover{background:var(--border);color:var(--text)}
-.act-del{background:var(--red-light);color:var(--red);border-color:transparent}
-.act-del:hover{background:#ffd7d5}
+.act-del{background:var(--red-light);color:var(--red)}
+.act-del:hover{background:#fecaca}
 
 
-/* ── MODAL ── */
-.modal-bg{position:fixed;inset:0;background:rgba(31,35,40,.5);backdrop-filter:blur(4px);z-index:999;display:none;align-items:flex-end;justify-content:center;padding:0}
+/* ── MODAL (slide from right) ── */
+.modal-bg{position:fixed;inset:0;background:rgba(17,24,39,.5);backdrop-filter:blur(4px);z-index:999;display:none;align-items:stretch;justify-content:flex-end;padding:0}
 .modal-bg.show{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:24px 20px 36px;animation:slideUp .3s ease}
-@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-handle{width:32px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 20px}
-.modal-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
-.modal-close{background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all var(--transition)}
+.modal{background:var(--surface);border-left:1px solid var(--border);width:100%;max-width:480px;height:100vh;overflow-y:auto;padding:32px 24px;animation:slideRight .3s ease}
+@keyframes slideRight{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.modal-handle{display:none}
+.modal-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:24px;display:flex;align-items:center;justify-content:space-between}
+.modal-close{background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all var(--transition)}
 .modal-close:hover{background:var(--border);color:var(--text)}
 
+/* ── TOAST (top-right) ── */
+@keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
 /* ── ALERTS ── */
-.alert{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;margin-bottom:16px;animation:fadeIn 0.3s ease}
-.alert-success{background:var(--green-light);border:1px solid rgba(26,127,55,.2);color:var(--green)}
-.alert-error{background:var(--red-light);border:1px solid rgba(207,34,46,.2);color:var(--red)}
+.alert{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;margin-bottom:20px;animation:fadeIn 0.3s ease}
+.alert-success{background:var(--green-light);border:1px solid rgba(5,150,105,.2);color:var(--green)}
+.alert-error{background:var(--red-light);border:1px solid rgba(220,38,38,.2);color:var(--red)}
 
 /* ── EMPTY STATE ── */
-.empty{text-align:center;padding:48px 24px}
-.empty-icon{font-size:40px;margin-bottom:16px;opacity:.4}
-.empty-title{font-size:14px;font-weight:600;color:var(--muted);margin-bottom:6px}
-.empty-sub{font-size:12px;color:var(--border2)}
+.empty{text-align:center;padding:56px 24px}
+.empty-icon{font-size:48px;margin-bottom:20px;opacity:.4}
+.empty-title{font-size:16px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.empty-sub{font-size:13px;color:var(--border2)}
 
 /* ── HIDDEN STEPS WRAPPER ── */
 #stepsWrap{display:block}
 
-@keyframes slideDown {
-    from { transform: translate(-50%, -20px); opacity: 0; }
-    to { transform: translate(-50%, 0); opacity: 1; }
-}
-
-/* tab panels */
-.tab-panel{display:none}
-.tab-panel.active{display:block}
+/* tab panels - not used in new layout but kept for JS compat */
+.tab-panel{display:block}
+.tabs{display:none}
 </style>
 </head>
 <body>
 
 <?php include 'sidebar.php'; ?>
 
-<br>
-<br>
-<br>
+<br><br><br>
 
 
-<!-- TOPBAR -->
-<div class="topbar page-topbar" id="mainTopbar" style="z-index: 100; display: flex; align-items: center; justify-content: center; text-align: center; gap: 12px; position: relative;">
-    
-    <button class="menu-btn" onclick="toggleSidebar()" style="display:none; position: absolute; left: 16px; background:none; border:none; font-size: 18px; color:var(--text); cursor:pointer;">
+<!-- TOPBAR (minimal, text only) -->
+<div class="topbar page-topbar" id="mainTopbar" style="z-index: 100;">
+    <button class="menu-btn" onclick="toggleSidebar()" style="display:none; background:none; border:none; font-size: 18px; color:var(--text); cursor:pointer;">
         <i class="fas fa-bars"></i>
     </button>
-
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <div class="topbar-icon"><i class="fas fa-campground"></i></div>
-        <div style="display: flex; flex-direction: column; align-items: flex-start;">
-            <div class="topbar-title" style="line-height: 1.2;">Camp Builder</div>
-            <div class="topbar-sub" style="line-height: 1.2;">Create & manage campaigns</div>
-        </div>
+    <div>
+        <div class="topbar-title">Camp Builder</div>
+        <div class="topbar-sub">Create & manage your campaigns</div>
     </div>
-
     <?php if(!empty($my_camps)): ?>
-    <div class="topbar-count" style="position: absolute; right: 16px;"><?= count($my_camps) ?> camps</div>
+    <div class="topbar-count"><?= count($my_camps) ?> camps</div>
     <?php endif; ?>
 </div>
-<!-- TABS -->
+
+<!-- Hidden tabs for JS compatibility -->
 <div class="tabs page-tabs" id="mainTabs">
-    <button class="tab active" onclick="switchTab('create')" id="tab-create">
-        <i class="fas fa-plus-circle"></i> Create
-    </button>
-    <button class="tab" onclick="switchTab('camps')" id="tab-camps">
-        <i class="fas fa-list"></i> My Camps
-        <?php if(!empty($my_camps)): ?>
-        <span style="font-size:9px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:99px;margin-left:4px"><?= count($my_camps) ?></span>
-        <?php endif; ?>
-    </button>
+    <button class="tab active" onclick="switchTab('create')" id="tab-create">Create</button>
+    <button class="tab" onclick="switchTab('camps')" id="tab-camps">My Camps</button>
 </div>
 
 <main class="page-main">
@@ -413,7 +405,7 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
 <?php unset($_SESSION['camp_error']); endif; ?>
 
 
-<!-- ══ CREATE TAB ══ -->
+<!-- ══ CREATE SECTION (single page scroll, on top) ══ -->
 <div class="tab-panel active" id="panel-create">
 <form method="POST" id="campForm">
 <input type="hidden" name="create_camp" value="1">
@@ -451,7 +443,7 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
             $maxP  = !empty($epays) ? max($epays) : 0;
         ?>
         <div class="offer-card" onclick="selectOffer(<?= $o['id'] ?>,'<?= htmlspecialchars($o['name'],ENT_QUOTES) ?>',<?= htmlspecialchars(json_encode($evArr),ENT_QUOTES) ?>)" data-id="<?= $o['id'] ?>">
-            <img src="<?= htmlspecialchars($o['image']) ?>" onerror="this.src='https://via.placeholder.com/40'">
+            <img src="<?= htmlspecialchars($o['image']) ?>" onerror="this.src='https://via.placeholder.com/44'">
             <div class="flex-1" style="min-width:0">
                 <div class="offer-name"><?= htmlspecialchars($o['name']) ?></div>
                 <div class="offer-cat"><?= htmlspecialchars($o['category']) ?> · <?= htmlspecialchars($o['payout_type']) ?></div>
@@ -470,9 +462,9 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
         <div class="sec-num" id="n3">3</div>
         <div class="sec-title">Event & Payout</div>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Select an event, then split the payout:</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Select an event, then split the payout:</p>
     <div class="event-pills" id="eventPills"></div>
-    <div id="payoutConfig" style="display:none;margin-top:16px">
+    <div id="payoutConfig" style="display:none;margin-top:20px">
         <div class="payout-info">
             <div><div class="pi-label">Event Payout</div><div class="pi-val gold" id="maxLbl">₹0</div></div>
             <div style="text-align:right"><div class="pi-label">Your Profit</div><div class="pi-val green" id="remLbl">₹0</div></div>
@@ -498,7 +490,7 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
         <div class="sec-num" id="n4">4</div>
         <div class="sec-title">Steps for User</div>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">What the user needs to do to complete & earn:</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">What the user needs to do to complete & earn:</p>
     <div id="stepsWrap">
         <div class="step-row">
             <div class="step-badge">1</div>
@@ -554,11 +546,10 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
         <div class="sec-num" id="n6">6</div>
         <div class="sec-title">Your Camp Links</div>
     </div>
-    <div style="font-size:11px;font-weight:500;color:var(--muted);margin-bottom:6px">Offer Link</div>
     <div class="link-box" id="linkPrev">Fill details above to preview link...</div>
     <div id="referPrevWrap" style="display:none">
-        <div style="font-size:11px;font-weight:500;color:var(--gold);margin-bottom:6px;margin-top:12px"><i class="fas fa-share-alt" style="margin-right:4px"></i>Refer Link</div>
-        <div class="link-box" id="referPrev" style="border-color:rgba(154,103,0,.2);background:var(--gold-light)"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:8px;margin-top:14px"><i class="fas fa-share-alt" style="margin-right:4px"></i>Refer Link</div>
+        <div class="link-box" id="referPrev" style="border-color:rgba(217,119,6,.2);background:var(--gold-light)"></div>
     </div>
     <button type="submit" class="submit-btn">
         <i class="fas fa-rocket"></i> Launch Camp
@@ -569,13 +560,16 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
 </div><!-- /panel-create -->
 
 
-<!-- ══ MY CAMPS TAB ══ -->
+<!-- ══ DIVIDER between Create and My Camps ══ -->
+<div class="section-divider" data-label="Your Campaigns"></div>
+
+<!-- ══ MY CAMPS SECTION (below, single page scroll) ══ -->
 <div class="tab-panel" id="panel-camps">
 <?php if(empty($my_camps)): ?>
 <div class="empty">
     <div class="empty-icon">🏕️</div>
     <div class="empty-title">No camps yet</div>
-    <div class="empty-sub">Create your first camp from the Create tab</div>
+    <div class="empty-sub">Create your first camp above to get started</div>
 </div>
 <?php else: ?>
 <?php foreach($my_camps as $camp):
@@ -586,54 +580,57 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
     $isActive  = $camp['status']==='active' && $camp['offer_status']==='active';
 ?>
 <div class="camp-card">
-    <div class="camp-top">
-        <img class="camp-img" src="<?= htmlspecialchars($camp['offer_image']) ?>" onerror="this.src='https://via.placeholder.com/44'">
-        <div style="flex:1;min-width:0">
-            <div class="camp-name"><?= htmlspecialchars($camp['camp_name']) ?></div>
-            <div class="camp-offer"><?= htmlspecialchars($camp['offer_name']) ?> · <?= htmlspecialchars($camp['event_name'] ?? '—') ?></div>
+    <div class="camp-img-wrap">
+        <img class="camp-img" src="<?= htmlspecialchars($camp['offer_image']) ?>" onerror="this.src='https://via.placeholder.com/56'">
+    </div>
+    <div class="camp-info">
+        <div class="camp-name"><?= htmlspecialchars($camp['camp_name']) ?></div>
+        <div class="camp-offer"><?= htmlspecialchars($camp['offer_name']) ?> · <?= htmlspecialchars($camp['event_name'] ?? '—') ?></div>
+        <div class="camp-chips">
+            <span class="chip <?= $isActive ? 'chip-green' : 'chip-red' ?>"><?= $isActive ? '● Active' : '⏸ Paused' ?></span>
+            <span class="chip chip-purple">U ₹<?= number_format($camp['user_payout'],0) ?></span>
+            <?php if($camp['refer_enabled']): ?><span class="chip chip-gold">R ₹<?= number_format($camp['refer_payout'],0) ?></span><?php endif; ?>
+            <?php if($camp['mobile_enabled']): ?><span class="chip chip-blue">📱 Mobile</span><?php endif; ?>
+            <span class="chip chip-purple">👁 <?= $camp['total_clicks'] ?></span>
         </div>
-    </div>
-    <div class="camp-chips">
-        <span class="chip <?= $isActive ? 'chip-green' : 'chip-red' ?>"><?= $isActive ? '● Active' : '⏸ Paused' ?></span>
-        <span class="chip chip-purple">U ₹<?= number_format($camp['user_payout'],0) ?></span>
-        <?php if($camp['refer_enabled']): ?><span class="chip chip-gold">R ₹<?= number_format($camp['refer_payout'],0) ?></span><?php endif; ?>
-        <?php if($camp['mobile_enabled']): ?><span class="chip chip-blue">📱 Mobile</span><?php endif; ?>
-        <span class="chip chip-purple">👁 <?= $camp['total_clicks'] ?></span>
-    </div>
-
-    <!-- Offer Link -->
-    <div style="font-size:11px;font-weight:500;color:var(--muted);margin-bottom:4px">Offer Link</div>
-    <div class="camp-link-row">
-        <span><?= htmlspecialchars($link) ?></span>
-        <button onclick="copyTxt('<?= htmlspecialchars($link) ?>')" title="Copy"><i class="fas fa-copy"></i></button>
-    </div>
-
-    <!-- Refer Link -->
-    <?php if($camp['refer_enabled']): ?>
-    <div style="font-size:11px;font-weight:500;color:var(--gold);margin-bottom:4px;margin-top:8px">
-        <i class="fas fa-share-alt" style="margin-right:4px"></i>Refer Link
-    </div>
-    <div class="camp-link-row" style="border-color:rgba(154,103,0,.15);background:var(--gold-light)">
-        <span style="color:var(--text)"><?= htmlspecialchars($refer_link) ?></span>
-        <button onclick="copyTxt('<?= htmlspecialchars($refer_link) ?>')" title="Copy Refer Link" style="color:var(--gold)"><i class="fas fa-copy"></i></button>
-    </div>
-    <?php endif; ?>
-
-    <?php if(!empty($steps_arr)): ?>
-    <div class="steps-preview">
-        <?php foreach($steps_arr as $si => $step): ?>
-        <span class="step-tag"><?= ($si+1) ?>. <?= htmlspecialchars(mb_substr($step,0,28)) ?></span>
-        <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-    <div class="camp-actions">
-        <?php if($camp['refer_enabled']): ?>
+        <?php if(!empty($steps_arr)): ?>
+        <div class="steps-preview">
+            <?php foreach($steps_arr as $si => $step): ?>
+            <span class="step-tag"><?= ($si+1) ?>. <?= htmlspecialchars(mb_substr($step,0,28)) ?></span>
+            <?php endforeach; ?>
+        </div>
         <?php endif; ?>
-        <a class="act-btn act-copy" href="campreport?camp_id=<?= $camp['id'] ?>">
-         <i class="fas fa-chart-bar"></i> Report </a>
-        <button class="act-btn act-edit" onclick="openEdit(<?= $camp['id'] ?>,'<?= htmlspecialchars($camp['camp_name'],ENT_QUOTES) ?>',<?= $camp['user_payout'] ?>,<?= $camp['refer_payout'] ?>,<?= $camp['refer_enabled'] ?>,<?= $camp['mobile_enabled'] ?>,'<?= $camp['max_payout'] ?>',<?= $sj ?>)"><i class="fas fa-edit"></i> Edit</button>
-        <a class="act-btn act-pause" href="?toggle=<?= $camp['status'] ?>&camp_id=<?= $camp['id'] ?>"><i class="fas fa-<?= $camp['status']==='active'?'pause':'play' ?>"></i> <?= $camp['status']==='active'?'Pause':'Resume' ?></a>
-        <button class="act-btn act-del" onclick="delCamp(<?= $camp['id'] ?>)"><i class="fas fa-trash"></i></button>
+    </div>
+
+
+    <div class="camp-right">
+        <!-- Offer Link -->
+        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.03em">Offer Link</div>
+        <div class="camp-link-row">
+            <span><?= htmlspecialchars($link) ?></span>
+            <button onclick="copyTxt('<?= htmlspecialchars($link) ?>')" title="Copy"><i class="fas fa-copy"></i></button>
+        </div>
+
+        <!-- Refer Link -->
+        <?php if($camp['refer_enabled']): ?>
+        <div style="font-size:11px;font-weight:600;color:var(--gold);margin-bottom:4px;margin-top:4px;text-transform:uppercase;letter-spacing:0.03em">
+            <i class="fas fa-share-alt" style="margin-right:4px"></i>Refer Link
+        </div>
+        <div class="camp-link-row" style="border-color:rgba(217,119,6,.15);background:var(--gold-light)">
+            <span style="color:var(--text)"><?= htmlspecialchars($refer_link) ?></span>
+            <button onclick="copyTxt('<?= htmlspecialchars($refer_link) ?>')" title="Copy Refer Link" style="color:var(--gold)"><i class="fas fa-copy"></i></button>
+        </div>
+        <?php endif; ?>
+
+        <div class="camp-actions">
+            <?php if($camp['refer_enabled']): ?>
+            <?php endif; ?>
+            <a class="act-btn act-copy" href="campreport?camp_id=<?= $camp['id'] ?>">
+             <i class="fas fa-chart-bar"></i> Report </a>
+            <button class="act-btn act-edit" onclick="openEdit(<?= $camp['id'] ?>,'<?= htmlspecialchars($camp['camp_name'],ENT_QUOTES) ?>',<?= $camp['user_payout'] ?>,<?= $camp['refer_payout'] ?>,<?= $camp['refer_enabled'] ?>,<?= $camp['mobile_enabled'] ?>,'<?= $camp['max_payout'] ?>',<?= $sj ?>)"><i class="fas fa-edit"></i> Edit</button>
+            <a class="act-btn act-pause" href="?toggle=<?= $camp['status'] ?>&camp_id=<?= $camp['id'] ?>"><i class="fas fa-<?= $camp['status']==='active'?'pause':'play' ?>"></i> <?= $camp['status']==='active'?'Pause':'Resume' ?></a>
+            <button class="act-btn act-del" onclick="delCamp(<?= $camp['id'] ?>)"><i class="fas fa-trash"></i></button>
+        </div>
     </div>
 </div>
 <?php endforeach; ?>
@@ -644,7 +641,7 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
 </main>
 
 
-<!-- ══ EDIT MODAL ══ -->
+<!-- ══ EDIT MODAL (slides from right) ══ -->
 <div class="modal-bg" id="editModal">
 <div class="modal">
     <div class="modal-handle"></div>
@@ -661,7 +658,7 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
             <input type="text" name="camp_name" id="edit_camp_name" class="inp" required>
         </div>
 
-        <div class="payout-info" style="margin-bottom:14px">
+        <div class="payout-info" style="margin-bottom:16px">
             <div><div class="pi-label">Event Payout</div><div class="pi-val gold" id="e_maxLbl">₹0</div></div>
             <div style="text-align:right"><div class="pi-label">Remaining</div><div class="pi-val green" id="e_remLbl">₹0</div></div>
         </div>
@@ -677,13 +674,13 @@ input:checked~.toggle-track::before{transform:translateX(20px)}
             </div>
         </div>
 
-        <div style="margin:16px 0 8px">
-            <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px">Steps</div>
+        <div style="margin:20px 0 10px">
+            <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.03em">Steps</div>
             <div id="editStepsWrap"></div>
             <button type="button" class="add-step-btn" onclick="addEditStep('')"><i class="fas fa-plus"></i> Add Step</button>
         </div>
 
-        <div style="margin:16px 0">
+        <div style="margin:20px 0">
             <div class="toggle-row">
                 <div class="toggle-info"><div class="tl"><i class="fas fa-mobile-alt" style="color:var(--accent);margin-right:8px"></i>Mobile Input</div></div>
                 <label class="toggle-sw"><input type="checkbox" name="mobile_enabled" id="e_mobile"><div class="toggle-track"></div></label>
@@ -728,8 +725,8 @@ function selectOffer(id, name, evArr) {
     s4.style.visibility = 'visible';
     s4.style.height = 'auto';
     s4.style.overflow = 'visible';
-    s4.style.padding = '20px';
-    s4.style.margin = '0 0 16px 0';
+    s4.style.padding = '24px';
+    s4.style.margin = '0 0 20px 0';
     s4.style.border = '1px solid var(--border)';
 
     // Build event pills
@@ -758,6 +755,7 @@ function selectEvent(id, payout, el) {
     document.getElementById('refer_payout').value = '';
     updateBar();
 }
+
 
 // ── PAYOUT BAR ──
 function updateBar() {
@@ -821,6 +819,7 @@ function renumber(wrapId, badgeClass) {
     });
 }
 
+
 // ── LINK PREVIEW ──
 function updateLink() {
     const name = document.getElementById('camp_name').value.trim();
@@ -839,18 +838,19 @@ function updateLink() {
 }
 document.getElementById('camp_name').addEventListener('input', updateLink);
 
-// ── COPY ──
+// ── COPY (toast at top-right) ──
 function copyTxt(txt) {
     navigator.clipboard.writeText(txt).then(() => {
         const toast = document.createElement('div');
         toast.innerHTML = `<i class="fas fa-check-circle"></i> Copied to clipboard`;
         toast.style = `
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--text); color: #fff; padding: 8px 18px;
-            border-radius: 8px; font-size: 12px; font-weight: 500;
+            position: fixed; top: 20px; right: 20px;
+            background: var(--text); color: #fff; padding: 10px 20px;
+            border-radius: 12px; font-size: 13px; font-weight: 500;
             z-index: 9999; box-shadow: var(--shadow-lg);
-            animation: slideDown 0.3s ease-out;
+            animation: toastIn 0.3s ease-out;
             display: flex; align-items: center; gap: 8px;
+            font-family: 'Outfit', sans-serif;
         `;
         document.body.appendChild(toast);
         setTimeout(() => {
